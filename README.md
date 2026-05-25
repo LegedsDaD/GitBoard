@@ -23,7 +23,6 @@ Put these comments on their own lines wherever you want the dashboard to appear:
 
 ```md
 <!-- Gitboard Start -->
-![GitBoard Dashboard](assets/my_dashboard.svg)
 <!-- Gitboard End -->
 ```
 
@@ -64,6 +63,18 @@ jobs:
           output: assets/my_dashboard.svg
           readme: README.md
           prefer_txt: "true"
+
+      - name: Commit changes
+        run: |
+          if git diff --quiet; then
+            echo "No changes."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add assets/my_dashboard.svg README.md
+          git commit -m "Update GitBoard dashboard"
+          git push
 ```
 
 ### 3) Run it
