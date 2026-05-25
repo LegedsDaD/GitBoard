@@ -31,10 +31,11 @@ runs:
       run: |
         set -euo pipefail
         python3 --version
-        python3 gitboard.py \
+        python3 "${GITHUB_ACTION_PATH}/gitboard.py" \
           --username "${{ inputs.username || github.repository_owner }}" \
           --template "${{ inputs.template }}" \
           --theme "${{ inputs.theme }}" \
           --output "${{ inputs.output }}" \
           --readme "${{ inputs.readme }}" \
+          --templates-dir "${GITHUB_ACTION_PATH}/templates" \
           $([ "${{ inputs.prefer_txt }}" = "true" ] && echo "--prefer-txt" || true)
