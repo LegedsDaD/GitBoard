@@ -517,7 +517,7 @@ def _compute_scores(
     )
 
 
-def _pick_template_path(template_name: str, theme: str, prefer_txt: bool) -> str:
+def _pick_template_path(template_name: str, theme: str, prefer_txt: bool, templates_dir: str) -> str:
     # template_name can be:
     # - a direct filepath
     # - a folder name under templates/ (e.g. "Quantum Forge")
@@ -530,7 +530,7 @@ def _pick_template_path(template_name: str, theme: str, prefer_txt: bool) -> str
         raise ValueError("--theme must be 'dark' or 'light'")
 
     candidates: list[str] = []
-    root = os.path.join("templates", template_name)
+    root = os.path.join(templates_dir, template_name)
     if os.path.isdir(root):
         # look for *_<theme>_txt.txt or *_<theme>_svg.svg
         for ext in (("_txt.txt" if prefer_txt else "_svg.svg"), ("_svg.svg" if prefer_txt else "_txt.txt")):
@@ -548,7 +548,7 @@ def _pick_template_path(template_name: str, theme: str, prefer_txt: bool) -> str
 
     # base prefix attempt
     prefix = template_name.lower().replace(" ", "_")
-    for dirpath, _, filenames in os.walk("templates"):
+    for dirpath, _, filenames in os.walk(templates_dir):
         for filename in filenames:
             lower = filename.lower()
             if prefix in lower and norm_theme in lower:
@@ -576,6 +576,11 @@ def main(argv: list[str]) -> int:
     parser.add_argument("--username", default=os.getenv("GITHUB_ACTOR") or os.getenv("GITHUB_REPOSITORY_OWNER") or "", help="GitHub username")
     parser.add_argument("--template", default="Quantum Forge", help="Template folder name, base name, or path")
     parser.add_argument("--theme", default="dark", choices=["dark", "light"], help="Template theme variant")
+    parser.add_argument(
+        "--templates-dir",
+        default=os.path.join(os.path.dirname(__file__), "templates"),
+        help="Directory containing template folders (defaults to <script_dir>/templates)",
+    )
     parser.add_argument("--prefer-txt", action="store_true", help="Prefer *_txt.txt templates over *_svg.svg")
     parser.add_argument("--output", default=os.path.join("assets", "my_dashboard.svg"), help="Output SVG path")
     parser.add_argument("--readme", default="README.md", help="README path to inject image link")
@@ -598,7 +603,12 @@ def main(argv: list[str]) -> int:
     lang_lines = _top_language_lines(lang_bytes, limit=4)
     scores = _compute_scores(repo, social, collab, contrib)
 
-    template_path = _pick_template_path(args.template, args.theme, prefer_txt=args.prefer_txt)
+    template_path = _pick_template_path(
+        args.template,
+        args.theme,
+        prefer_txt=args.prefer_txt,
+        templates_dir=args.templates_dir,
+    )
     template_text = _read_text(template_path)
 
     # Template placeholders. Some are labels-only in the SVG; we fill them anyway.
