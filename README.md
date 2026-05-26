@@ -23,6 +23,7 @@ Put these comments on their own lines wherever you want the dashboard to appear:
 
 ```md
 <!-- Gitboard Start -->
+![GitBoard Dashboard](assets/my_dashboard.svg)
 <!-- Gitboard End -->
 ```
 
